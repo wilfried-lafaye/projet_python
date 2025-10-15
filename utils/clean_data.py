@@ -23,4 +23,4 @@ nombre_pays = df['Location'].nunique()
 print(f"Nombre de pays distincts : {nombre_pays}")
 
 # Sauvegarder le fichier nettoyé si besoin
-df.to_csv('../data/cleaned_data.csv', index=False) 
+df.to_csv('../data/cleaned/cleaned_data.csv', index=False)
