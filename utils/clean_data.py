@@ -1,8 +1,11 @@
 
 import pandas as pd
+pd.set_option('display.max_columns', None)
 
 # Charger le fichier CSV
 df = pd.read_csv('../data/raw/raw_data.csv')  # Correction du chemin relatif
+
+
 
 # Nettoyer les colonnes : enlever les espaces et mettre en minuscules
 df['ParentLocation'] = df['ParentLocation'].str.strip().str.lower()
@@ -24,3 +27,5 @@ print(f"Nombre de pays distincts : {nombre_pays}")
 
 # Sauvegarder le fichier nettoyé si besoin
 df.to_csv('../data/cleaned/cleaned_data.csv', index=False)
+statistiques = df.describe(include='all')
+statistiques.to_csv('../data/cleaned/statistiques.csv', encoding='utf-8')
