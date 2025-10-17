@@ -47,18 +47,13 @@ df = df.drop(columns=empty_cols)
 
 df = df.drop(
     columns=[
-        'Language',
-        'DateModified',
-        'IsLatestYear',
-        'Location type',
+        'TimeDimType',
         'ParentLocationCode',
-        'ValueType',
-        'Indicator',
-        'Period type',
-        'Dim1 type',
-        'SpatialDimValueCode',
-        'Dim1ValueCode',
-        'Value'
+        'TimeDimensionValue',
+        'TimeDimensionBegin',
+        'TimeDimensionEnd',
+        'Date',
+        'Dim1Type',
     ]
 )  # Suppression des colonnes inutilisées
 
@@ -69,4 +64,4 @@ statistiques_cleaned = df.describe(include='all')
 statistiques_cleaned.to_csv('data/cleaned/statistiques_data_cleaned.csv', encoding='utf-8')
 
 
-df.to_csv('data/cleaned/cleaned_data.csv', index=False)
+df.to_csv('data/cleaned/cleaneddata.csv', index=False)
