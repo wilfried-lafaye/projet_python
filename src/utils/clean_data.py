@@ -16,29 +16,12 @@ pd.set_option('display.max_columns', None)
 # CHARGEMENT DES DONNÉES
 # =============================================================
 # Chargement du fichier CSV brut
-RAW_DATA_PATH = 'data/raw/raw_data.csv'
+RAW_DATA_PATH = 'data/raw/rawdata.csv'
 df = pd.read_csv(RAW_DATA_PATH)
-
-# =============================================================
-# NETTOYAGE DES DONNÉES
-# =============================================================
-# -- Nettoyage des chaînes de caractères --
-df['ParentLocation'] = df['ParentLocation'].str.strip().str.lower()
-df['Location'] = df['Location'].str.strip().str.lower()
-
-# -- Suppression des doublons et valeurs manquantes --
-df = df.drop_duplicates()
-df = df.dropna(subset=['ParentLocation', 'Location'])
 
 # =============================================================
 # ANALYSE SOMMAIRE DES DONNÉES
 # =============================================================
-# Comptage des régions et pays distincts
-nombre_region = df['ParentLocation'].nunique()  # renommer sans accent
-print(f"Nombre de régions distinctes : {nombre_region}")
-
-nombre_pays = df['Location'].nunique()
-print(f"Nombre de pays distincts : {nombre_pays}")
 
 # Export des statistiques initiales
 statistiques_raw = df.describe(include='all')
@@ -62,15 +45,28 @@ empty_cols = [col for col in df.columns if is_column_empty(df[col])]
 # Suppression des colonnes entièrement vides
 df = df.drop(columns=empty_cols)
 
-df = df.drop(columns=['Language','DateModified'])  # Suppression des colonnes inutilisées
+df = df.drop(
+    columns=[
+        'Language',
+        'DateModified',
+        'IsLatestYear',
+        'Location type',
+        'ParentLocationCode',
+        'ValueType',
+        'Indicator',
+        'Period type',
+        'Dim1 type',
+        'SpatialDimValueCode',
+        'Dim1ValueCode',
+        'Value'
+    ]
+)  # Suppression des colonnes inutilisées
 
 # =============================================================
 # EXPORT DES DONNÉES NETTOYÉES
 # =============================================================
 statistiques_cleaned = df.describe(include='all')
 statistiques_cleaned.to_csv('data/cleaned/statistiques_data_cleaned.csv', encoding='utf-8')
-
-print(df.dtypes)
 
 
 df.to_csv('data/cleaned/cleaned_data.csv', index=False)
