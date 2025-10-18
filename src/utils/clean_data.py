@@ -45,17 +45,13 @@ empty_cols = [col for col in df.columns if is_column_empty(df[col])]
 # Suppression des colonnes entièrement vides
 df = df.drop(columns=empty_cols)
 
-df = df.drop(
-    columns=[
-        'TimeDimType',
-        'ParentLocationCode',
-        'TimeDimensionValue',
-        'TimeDimensionBegin',
-        'TimeDimensionEnd',
-        'Date',
-        'Dim1Type',
-    ]
-)  # Suppression des colonnes inutilisées
+# --- SUPPRESSION COLONNES INUTILES (ignore si absentes) ---
+cols_to_drop = [
+    "Language", "DateModified", "IsLatestYear", "SpatialDimValueCode",
+    "Period type", "IndicatorCode", "ValueType", "ParentLocationCode",
+    "Location type", "Dim1ValueCode","Low", "High"
+]
+df = df.drop(columns=cols_to_drop, errors="ignore")
 
 # =============================================================
 # EXPORT DES DONNÉES NETTOYÉES
