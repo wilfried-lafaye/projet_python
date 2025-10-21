@@ -58,7 +58,9 @@ unused_cols = [
     'Date',
     'Dim1Type',
     'Id',
-    'IndicatorCode'
+    'IndicatorCode',
+    'Low',
+    'High'
 ]
 df = df.drop(columns=unused_cols)
 
