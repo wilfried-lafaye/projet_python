@@ -21,11 +21,6 @@ geolocator = Nominatim(user_agent="mon_app_unique_et_descriptive")
 RAW_DATA_PATH = 'data/raw/rawdata.csv'
 df = pd.read_csv(RAW_DATA_PATH)
 
-# =============================================================
-# ANALYSE SOMMAIRE DES DONNÉES
-# =============================================================
-statistiques_raw = df.describe(include='all')
-statistiques_raw.to_csv('data/raw/statistiques.csv', encoding='utf-8')
 
 # =============================================================
 # FONCTIONS UTILITAIRES
@@ -65,11 +60,6 @@ unused_cols = [
 ]
 df = df.drop(columns=unused_cols)
 
-# =============================================================
-# EXPORT DES DONNÉES NETTOYÉES
-# =============================================================
-statistiques_cleaned = df.describe(include='all')
-statistiques_cleaned.to_csv('data/cleaned/statistiques_data_cleaned.csv', encoding='utf-8')
 
 # =============================================================
 # GÉOLOCALISATION ET MAPPING DES CODES PAYS
