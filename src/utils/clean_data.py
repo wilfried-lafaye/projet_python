@@ -75,6 +75,7 @@ statistiques_cleaned.to_csv('data/cleaned/statistiques_data_cleaned.csv', encodi
 # GÉOLOCALISATION ET MAPPING DES CODES PAYS
 # =============================================================
 # Extraction des codes uniques SpatialDim pour les pays
+"""
 spatialdim_unique = df.loc[df['SpatialDimType'] == 'COUNTRY', 'SpatialDim'].unique().tolist()
 
 # Création d'un dictionnaire ISO3 -> ISO2
@@ -102,7 +103,7 @@ df['SpatialDim'] = df['SpatialDim'].replace(iso3_to_iso2)
 df['Coordonnees'] = df['SpatialDim'].map(iso2_coords)
 
 print(iso2_coords)
-
+"""
 # =============================================================
 # SAUVEGARDE DU FICHIER NETTOYÉ
 # =============================================================
