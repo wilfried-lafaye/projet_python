@@ -60,7 +60,8 @@ unused_cols = [
     'Id',
     'IndicatorCode',
     'Low',
-    'High'
+    'High',
+    'Value'
 ]
 df = df.drop(columns=unused_cols)
 
