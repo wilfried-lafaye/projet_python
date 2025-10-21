@@ -1,0 +1,7 @@
+pandas>=2.0
+geopandas>=0.14
+shapely>=2.0
+folium>=0.15
+country_converter>=1.2
+geopy>=2.4
+pycountry>=22.3.5
