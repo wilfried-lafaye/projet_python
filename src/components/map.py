@@ -16,13 +16,11 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CSV = ROOT / "data" / "cleaned" / "cleaneddata.csv"
 WORLD_GEOJSON_URL = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/world-countries.json"
 
-SEXLBL = {"SEX_BTSX": "Both sexes", "SEX_MLE": "Male", "SEX_FMLE": "Female"}
-SEXLBL_INV = {v: k for k, v in SEXLBL.items()}
-
 
 st.set_page_config(page_title="Life expectancy — choropleth", layout="wide")
 st.title("Life expectancy at birth — world choropleth")
 
+#def load a mettre dans clean data :
 
 @st.cache_data(show_spinner=False)
 def load_csv(p: Path) -> pd.DataFrame:
