@@ -19,22 +19,10 @@ WORLD_GEOJSON_URL = "https://raw.githubusercontent.com/python-visualization/foli
 SEXLBL = {"SEX_BTSX": "Both sexes", "SEX_MLE": "Male", "SEX_FMLE": "Female"}
 SEXLBL_INV = {v: k for k, v in SEXLBL.items()}
 
-def normalize_dim1(val: str | None) -> str | None:
-    if val is None:
-        return None
-    s = str(val).strip().lower().replace(" ", "").replace("-", "").replace("_", "")
-    if s in {"sexbtsx", "btsx", "bothsexes", "both", "bothsex"}:
-        return "SEX_BTSX"
-    if s in {"sexmle", "mle", "male", "m", "homme"}:
-        return "SEX_MLE"
-    if s in {"sexfmle", "fmle", "female", "f", "femme"}:
-        return "SEX_FMLE"
-    if s in {"sex_btsx", "sex_mle", "sex_fmle"}:
-        return s.upper()
-    return None
 
 st.set_page_config(page_title="Life expectancy — choropleth", layout="wide")
 st.title("Life expectancy at birth — world choropleth")
+
 
 @st.cache_data(show_spinner=False)
 def load_csv(p: Path) -> pd.DataFrame:
@@ -48,15 +36,15 @@ def load_csv(p: Path) -> pd.DataFrame:
     df = df[df["SpatialDimType"].astype(str).str.upper() == "COUNTRY"].copy()
     df["SpatialDim"] = df["SpatialDim"].astype(str).str.upper()  # ISO3
     df["NumericValue"] = pd.to_numeric(df["NumericValue"], errors="coerce")
-    df = df.dropna(subset=["NumericValue"])
-    df["Dim1_norm"] = df["Dim1"].apply(normalize_dim1)
     return df
+
 
 @st.cache_data(show_spinner=False)
 def load_world_geojson() -> dict:
     with urllib.request.urlopen(WORLD_GEOJSON_URL, timeout=15) as resp:
         gj = json.load(resp)
     return gj  # feature.id = ISO3 ; properties.name (ou ADMIN selon versions)
+
 
 # Charger (chemin CSV fixe)
 try:
@@ -65,6 +53,7 @@ try:
 except Exception as e:
     st.error(f"Data loading error: {e}")
     st.stop()
+
 
 # --- Filtres dynamiques ---
 years = sorted(df["TimeDim"].dropna().unique().tolist())
@@ -76,21 +65,26 @@ st.sidebar.header("Filters")
 default_year = years[-1]
 year_sel = st.sidebar.selectbox("Year", years, index=years.index(default_year))
 
-sex_codes_avail = df.loc[df["TimeDim"] == year_sel, "Dim1_norm"].dropna().unique().tolist()
-sex_options_readable = [SEXLBL[c] for c in ["SEX_BTSX", "SEX_MLE", "SEX_FMLE"] if c in sex_codes_avail]
-if not sex_options_readable:
-    st.warning("Aucun sexe disponible pour cette année. Choisis une autre année.")
-    st.stop()
 
-sex_sel_readable = st.sidebar.radio("Sex", sex_options_readable, index=0)
-sex_code = SEXLBL_INV[sex_sel_readable]
+# Use direct values from Dim1 column (no normalization)
+sex_codes_avail_raw = df.loc[df["TimeDim"] == year_sel, "Dim1"].dropna().unique().tolist()
+# Filter the sex codes to those matching keys in SEXLBL inverse by label comparison
+# Find which keys in SEXLBL have corresponding raw values in the CSV for the selected year
+# We keep only those options whose values match any raw Dim1 value after stripping/lowercasing
+# Since original normalizing used many variants, you may need to adjust this as needed
+# For simplicity, just present the raw unique values here for user selection
+
+sex_sel_readable = st.sidebar.radio("Sex (raw values)", sex_codes_avail_raw, index=0)
+# Because no normalization, just use the selected raw value
+sex_code_raw = sex_sel_readable
+
 
 # --- Sous-ensemble filtré ---
-subset = df[(df["TimeDim"] == year_sel) & (df["Dim1_norm"] == sex_code)].copy()
+subset = df[(df["TimeDim"] == year_sel) & (df["Dim1"] == sex_code_raw)].copy()
 
 with st.expander("Diagnostic (disponibilités pour l'année sélectionnée)"):
     st.write("Sexes trouvés (bruts) :", sorted(df.loc[df["TimeDim"] == year_sel, "Dim1"].dropna().unique().tolist()))
-    st.write("Sexes normalisés :", sorted(sex_codes_avail))
+    # No normalized data to show now
 
 if subset.empty:
     st.warning("No data for this Year/Sex combination. Try another filter.")
@@ -99,10 +93,12 @@ if subset.empty:
     st_folium(m, height=650, width=None)
     st.stop()
 
+
 # Agrège une valeur par pays ISO3
 subset = subset.groupby("SpatialDim", as_index=False)["NumericValue"].mean()
 subset.rename(columns={"SpatialDim": "iso3"}, inplace=True)
 subset["iso3"] = subset["iso3"].str.upper()
+
 
 # ---------- Carte Folium (légende Folium déplacée en bas, bandeau plus bas) ----------
 vals = subset["NumericValue"].dropna().to_numpy()
@@ -112,6 +108,7 @@ if vals.size == 0:
     folium.GeoJson(world_gj, name="countries").add_to(m)
     st_folium(m, height=650, width=None)
     st.stop()
+
 
 vmin, vmax = float(np.min(vals)), float(np.max(vals))
 standard = [50, 60, 70, 80, 87]
@@ -125,7 +122,9 @@ else:
         cuts = list(np.linspace(low, high if high > low else low + 1, 5))
     bins = cuts
 
+
 m = folium.Map(location=[20, 0], zoom_start=2, tiles="cartodbpositron")
+
 
 # Choropleth AVEC légende intégrée (une seule légende)
 folium.Choropleth(
@@ -140,6 +139,7 @@ folium.Choropleth(
     bins=bins,
     legend_name="Life expectancy at birth (years)",
 ).add_to(m)
+
 
 # Déplacer la légende intégrée de Folium en bas-centre
 legend_css = """
@@ -157,6 +157,7 @@ legend_css = """
 """
 m.get_root().html.add_child(folium.Element(legend_css))
 
+
 # Tooltips: injecte la valeur + uniformise le nom
 val_by_iso3 = dict(zip(subset["iso3"], subset["NumericValue"]))
 world_gj_tt = {"type": world_gj["type"], "features": []}
@@ -172,6 +173,7 @@ for feat in world_gj["features"]:
         "geometry": feat.get("geometry"),
     })
 
+
 tooltip = folium.features.GeoJsonTooltip(
     fields=["name", "value"], aliases=["Country", "Life expectancy"],
     localize=True, labels=True, sticky=False,
@@ -183,10 +185,11 @@ folium.GeoJson(
     tooltip=tooltip,
 ).add_to(m)
 
+
 # Bandeau Année / Sexe : plus bas (ajuste 'top' si tu veux encore descendre)
 label_html = f"""
 <div style="
-  position:fixed; top:160px; left:58px; z-index:9999;
+  position:fixed; top:230px; left:25px; z-index:9999;
   background: rgba(255,255,255,0.88);
   padding: 8px 14px; border-radius: 12px;
   font-size: 22px; color:#c2702b; font-weight:800;">
@@ -194,5 +197,6 @@ label_html = f"""
 </div>
 """
 m.get_root().html.add_child(folium.Element(label_html))
+
 
 st_folium(m, height=650, width=None)
