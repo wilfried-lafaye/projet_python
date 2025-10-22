@@ -1,11 +1,18 @@
 import requests
 import pandas as pd
 
+from pathlib import Path
+import sys
+# ajoute la racine du projet au sys.path
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(str(ROOT))
+from config import URL
+
 # URL de l'API WHO pour l'espérance de vie
-url = "https://ghoapi.azureedge.net/api/WHOSIS_000001"
+
 
 # Requête GET vers l'API
-response = requests.get(url)
+response = requests.get(URL)
 response.raise_for_status()
 
 # Conversion de la réponse en JSON

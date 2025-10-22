@@ -21,6 +21,23 @@ geolocator = Nominatim(user_agent="mon_app_unique_et_descriptive")
 RAW_DATA_PATH = 'data/raw/rawdata.csv'
 df = pd.read_csv(RAW_DATA_PATH)
 
+# Normalise Dim1 vers 3 codes stables
+def normalize_dim1(val: str) -> str | None:
+    if val is None:
+        return None
+    s = str(val).strip().lower().replace(" ", "")
+    if s in {"sex_btsx", "btsx", "bothsexes", "both"}:
+        return "SEX_BTSX"
+    if s in {"sex_mle", "mle", "male", "homme"}:
+        return "SEX_MLE"
+    if s in {"sex_fmle", "fmle", "female", "femme"}:
+        return "SEX_FMLE"
+    # valeurs OMS fréquentes déjà normalisées
+    if s in {"sex_btsx", "sex_mle", "sex_fmle"}:
+        return s.upper()
+    return None
+
+
 
 # =============================================================
 # FONCTIONS UTILITAIRES
