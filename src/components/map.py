@@ -20,21 +20,21 @@ WORLD_GEOJSON_URL = "https://raw.githubusercontent.com/python-visualization/foli
 st.set_page_config(page_title="Life expectancy — choropleth", layout="wide")
 st.title("Life expectancy at birth — world choropleth")
 
-#def load a mettre dans clean data :
+#def load a mettre dans clean data et nécessaire ?
 
-@st.cache_data(show_spinner=False)
-def load_csv(p: Path) -> pd.DataFrame:
-    if not p.exists():
-        raise FileNotFoundError(f"Missing file: {p}")
-    df = pd.read_csv(p)
-    req = {"SpatialDimType", "SpatialDim", "TimeDim", "Dim1", "NumericValue"}
-    miss = req - set(df.columns)
-    if miss:
-        raise KeyError(f"CSV missing columns: {sorted(miss)}")
-    df = df[df["SpatialDimType"].astype(str).str.upper() == "COUNTRY"].copy()
-    df["SpatialDim"] = df["SpatialDim"].astype(str).str.upper()  # ISO3
-    df["NumericValue"] = pd.to_numeric(df["NumericValue"], errors="coerce")
-    return df
+#@st.cache_data(show_spinner=False)
+#def load_csv(p: Path) -> pd.DataFrame:
+#    if not p.exists():
+#        raise FileNotFoundError(f"Missing file: {p}")
+#    df = pd.read_csv(p)
+#    req = {"SpatialDimType", "SpatialDim", "TimeDim", "Dim1", "NumericValue"}
+#    miss = req - set(df.columns)
+#    if miss:
+#        raise KeyError(f"CSV missing columns: {sorted(miss)}")
+#    df = df[df["SpatialDimType"].astype(str).str.upper() == "COUNTRY"].copy()
+#    df["SpatialDim"] = df["SpatialDim"].astype(str).str.upper()  # ISO3
+#    df["NumericValue"] = pd.to_numeric(df["NumericValue"], errors="coerce")
+#    return df
 
 
 @st.cache_data(show_spinner=False)
@@ -46,7 +46,7 @@ def load_world_geojson() -> dict:
 
 # Charger (chemin CSV fixe)
 try:
-    df = load_csv(DEFAULT_CSV)
+    df = pd.read_csv(DEFAULT_CSV)
     world_gj = load_world_geojson()
 except Exception as e:
     st.error(f"Data loading error: {e}")
@@ -80,9 +80,7 @@ sex_code_raw = sex_sel_readable
 # --- Sous-ensemble filtré ---
 subset = df[(df["TimeDim"] == year_sel) & (df["Dim1"] == sex_code_raw)].copy()
 
-with st.expander("Diagnostic (disponibilités pour l'année sélectionnée)"):
-    st.write("Sexes trouvés (bruts) :", sorted(df.loc[df["TimeDim"] == year_sel, "Dim1"].dropna().unique().tolist()))
-    # No normalized data to show now
+
 
 if subset.empty:
     st.warning("No data for this Year/Sex combination. Try another filter.")
