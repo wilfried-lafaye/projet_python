@@ -94,6 +94,13 @@ df['Coordonnees'] = df['SpatialDim'].map(iso2_coords)
 
 print(iso2_coords)
 """
+corresponding_dict = {
+    "SEX_BTSX" : "Both",
+    "SEX_MLE" : "Male",
+    "SEX_FMLE" : "Female",
+}
+
+df['Dim1'] = df['Dim1'].map(corresponding_dict)
 
 # =============================================================
 # SAUVEGARDE DU FICHIER NETTOYÉ

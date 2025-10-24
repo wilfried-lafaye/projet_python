@@ -91,9 +91,9 @@ if subset.empty:
 
 
 # Agrège une valeur par pays ISO3
-subset = subset.groupby("SpatialDim", as_index=False)["NumericValue"].mean()
-subset.rename(columns={"SpatialDim": "iso3"}, inplace=True)
-subset["iso3"] = subset["iso3"].str.upper()
+#subset = subset.groupby("SpatialDim", as_index=False)["NumericValue"].mean()
+#subset.rename(columns={"SpatialDim": "iso3"}, inplace=True)
+#subset["iso3"] = subset["iso3"].str.upper()
 
 
 # ---------- Carte Folium (légende Folium déplacée en bas, bandeau plus bas) ----------
@@ -126,7 +126,7 @@ m = folium.Map(location=[20, 0], zoom_start=2, tiles="cartodbpositron")
 folium.Choropleth(
     geo_data=world_gj,
     data=subset,
-    columns=["iso3", "NumericValue"],
+    columns=["SpatialDim", "NumericValue"],
     key_on="feature.id",
     fill_color="Greens",
     fill_opacity=0.9,
@@ -155,7 +155,7 @@ m.get_root().html.add_child(folium.Element(legend_css))
 
 
 # Tooltips: injecte la valeur + uniformise le nom
-val_by_iso3 = dict(zip(subset["iso3"], subset["NumericValue"]))
+val_by_iso3 = dict(zip(subset["SpatialDim"], subset["NumericValue"]))
 world_gj_tt = {"type": world_gj["type"], "features": []}
 for feat in world_gj["features"]:
     props = dict(feat.get("properties", {}))
