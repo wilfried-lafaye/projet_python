@@ -64,22 +64,14 @@ default_year = years[-1]
 year_sel = st.sidebar.selectbox("Year", years, index=years.index(default_year))
 
 
-# Use direct values from Dim1 column (no normalization)
-sex_codes_avail_raw = df.loc[df["TimeDim"] == year_sel, "Dim1"].dropna().unique().tolist()
-# Filter the sex codes to those matching keys in SEXLBL inverse by label comparison
-# Find which keys in SEXLBL have corresponding raw values in the CSV for the selected year
-# We keep only those options whose values match any raw Dim1 value after stripping/lowercasing
-# Since original normalizing used many variants, you may need to adjust this as needed
-# For simplicity, just present the raw unique values here for user selection
+sex_codes_avail_raw = ['Female', 'Both', 'Male']
 
-sex_sel_readable = st.sidebar.radio("Sex (raw values)", sex_codes_avail_raw, index=0)
-# Because no normalization, just use the selected raw value
-sex_code_raw = sex_sel_readable
+sex_code_raw = st.sidebar.radio("Sex", sex_codes_avail_raw, index=0)
+
 
 
 # --- Sous-ensemble filtré ---
 subset = df[(df["TimeDim"] == year_sel) & (df["Dim1"] == sex_code_raw)].copy()
-
 
 
 if subset.empty:
@@ -189,7 +181,7 @@ label_html = f"""
   background: rgba(255,255,255,0.88);
   padding: 8px 14px; border-radius: 12px;
   font-size: 22px; color:#c2702b; font-weight:800;">
-  {year_sel} &nbsp; {sex_sel_readable}
+  {year_sel} &nbsp; {sex_code_raw}
 </div>
 """
 m.get_root().html.add_child(folium.Element(label_html))

@@ -1,7 +1,9 @@
 import requests
 import pandas as pd
-
+from config import DEFAULT_CSV, WORLD_GEOJSON_URL
 from pathlib import Path
+import urllib.request
+import json
 import sys
 # ajoute la racine du projet au sys.path
 ROOT = Path(__file__).resolve().parents[2]
@@ -10,6 +12,13 @@ from config import URL
 
 # URL de l'API WHO pour l'espérance de vie
 
+def load_world_geojson():
+    with urllib.request.urlopen(WORLD_GEOJSON_URL, timeout=15) as resp:
+        gj = json.load(resp)
+    return gj
+
+def load_clean_data():
+    return pd.read_csv(DEFAULT_CSV)
 
 # Requête GET vers l'API
 response = requests.get(URL)
